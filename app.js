@@ -1,35 +1,58 @@
+require("dotenv").config();
 const { json } = require("express");
 const express = require("express");
 const app = express();
-
-require("dotenv").config();
-app.use(json());
-
 const port = process.env.APP_PORT ?? 5000;
 
+const {
+  getUserById, 
+  updateUser, 
+  deleteUser, 
+  getUsers, 
+  postUser 
+} = require("./userHandlers");
+
+const {
+  getMovieById,
+  getMovies,
+  updateMovie,
+  deleteMovie,
+  postMovie
+} = require("./movieHandlers");
+
+const { validateUser } = require("./validators.js");
+const { validateMovie } = require("./validators.js");
+
+
+app.use(json());
+// ROUTES 
 const welcome = (req, res) => {
   res.send("Welcome to the users list");
 };
 
+// GET ROUTES 
 app.get("/", welcome);
 
-const userHandlers = require("./userHandlers");
+// POST ROUTES 
+app.post("/api/movies", validateMovie, postMovie);
+app.post("/api/users", validateUser, postUser);
+app.post("/api/users", postUser);
 
-app.post("/api/users", userHandlers.postUser);
+app.get("/api/users", getUsers);
+app.get("/api/users/:id", getUserById);
+app.put("/api/users/:id", updateUser);
+app.put("/api/users/:id", validateUser, updateUser);
+app.delete("/api/users/:id", deleteUser);
 
-app.get("/api/users", userHandlers.getUsers);
-app.get("/api/users/:id", userHandlers.getUserById);
-app.put("/api/users/:id", userHandlers.updateUser);
-app.delete("/api/users/:id", userHandlers.deleteUser);
 
-const movieHandlers = require("./movieHandlers");
 
-app.post("/api/movies", movieHandlers.postMovie);
+app.post("/api/movies", postMovie);
 
-app.get("/api/movies", movieHandlers.getMovies);
-app.get("/api/movies/:id", movieHandlers.getMovieById);
-app.put("/api/movies/:id", movieHandlers.updateMovie);
-app.delete("/api/movies/:id", movieHandlers.deleteMovie);
+app.get("/api/movies", getMovies);
+app.get("/api/movies/:id", getMovieById);
+app.put("/api/movies/:id", updateMovie);
+app.put("/api/movies/:id", validateMovie, updateMovie);
+app.delete("/api/movies/:id", deleteMovie);
 
 app.listen(port, (err) => {
   if (err) {
